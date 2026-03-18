@@ -12,6 +12,16 @@ export interface Match {
 
 const MAX_MATCHES = 10;
 
+// n人での実際の試合数
+// 制約1: MAX_MATCHES上限
+// 制約2: 1試合で2ペア消費するため C(n,2)÷2 が上限
+export function calcMatchCount(n: number): number {
+  if (n < 4) return 0;
+  const pairs = (n * (n - 1)) / 2; // C(n,2)
+  const pairLimit = Math.floor(pairs / 2);
+  return Math.min(MAX_MATCHES, pairLimit);
+}
+
 function buildAllMatches(players: Player[]): Match[] {
   const n = players.length;
   const all: Match[] = [];

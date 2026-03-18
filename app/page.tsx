@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
-import { generateMatches, Match } from "@/lib/scheduler";
+import { generateMatches, calcMatchCount, Match } from "@/lib/scheduler";
 
 type Phase = "setup" | "playing";
 type Direction = "next" | "prev";
@@ -274,6 +274,23 @@ function TransitionOverlay({ matchNum, match }: {
   );
 }
 
+/* ─── 時計 ─── */
+function Clock() {
+  const [time, setTime] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const hh = String(time.getHours()).padStart(2, "0");
+  const mm = String(time.getMinutes()).padStart(2, "0");
+  const ss = String(time.getSeconds()).padStart(2, "0");
+  return (
+    <span className="font-black text-white drop-shadow tabular-nums" style={{ fontSize: "1.1rem", letterSpacing: "0.05em" }}>
+      {hh}<span className="text-white/40">:</span>{mm}<span className="text-white/40">:</span>{ss}
+    </span>
+  );
+}
+
 /* ─── テニスコート背景 ─── */
 function CourtBackground() {
   return (
@@ -420,9 +437,9 @@ function SetupScreen({
             </div>
             <div className="w-px h-10 bg-white/20" />
             <div>
-              <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest">最大試合数</p>
-              <p className="font-black text-4xl text-white">
-                10
+              <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest">試合数</p>
+              <p key={`mc-${flipKey}`} className="animate-number-flip font-black text-4xl text-white">
+                {calcMatchCount(n)}
                 <span className="text-xl text-white/60">試合</span>
               </p>
             </div>
@@ -478,6 +495,7 @@ function PlayingScreen({
         <span className="text-xs font-bold text-white/70 bg-white/10 px-3 py-1 rounded-full">
           {n}人参加
         </span>
+        <Clock />
         <span className="text-sm font-black text-white drop-shadow">
           第 {currentIndex + 1}<span className="text-white/50 font-normal"> / {matches.length}</span> 試合
         </span>
